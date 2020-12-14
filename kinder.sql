@@ -5,8 +5,6 @@
 --Docente y colaborador: Ing. Robert Wilfrido Moreira Centeno, Mg
 /*==============================================================*/
 
-
-
 /*==============================================================*/
 /* Table: ACTIVIDAD_MATERIAL                                    */
 /*==============================================================*/
@@ -21,27 +19,13 @@ create table ACTIVIDAD_MATERIAL (
 /*==============================================================*/
 create table ACTIVIDAD_PROGRAMA (
    ACTIVIDAD_PROGRAMA_ID SERIAL               not null,
-   PROGRADA_ID          INT4                 not null,
-   PROFESIONAL_CI       CHAR(10)             null,
+   PROGRAMA_ID          INT4                 not null,
+   PROFESIONAL_CI       CHAR(10)             not null,
    ACTIVIDAD_PROGRAMA_DESCRIPCION CHAR(256)            null,
    ACTIVIDAD_PROGRAMA_TIEMPO CHAR(256)            null,
+   ACTIVIDAD_PROGRAMA_FECHA_INICIO DATE                 null,
+   ACTIVIDAD_PROGRAMA_FECHA_FIN DATE                 null,
    constraint PK_ACTIVIDAD_PROGRAMA primary key (ACTIVIDAD_PROGRAMA_ID)
-);
-
-/*==============================================================*/
-/* Table: ESTADO_SOCIAL                                         */
-/*==============================================================*/
-create table ESTADO_SOCIAL (
-   ESTADO_SOCIAL_ID     SERIAL               not null,
-   NINO_CI              CHAR(10)             not null,
-   ESTADO_SOCIAL_TALLA_VESTIMENTA CHAR(256)            null,
-   ESTADO_SOCIAL_TALLA_ZAPATOS CHAR(256)            null,
-   ESTADO_SOCIAL_ALERGIAS CHAR(256)            null,
-   ESTADO_SOCIAL_MEDICAMENTOS CHAR(256)            null,
-   ESTADO_SOCIAL_FECHA_ENFERMO DATE                 null,
-   ESTADO_SOCIAL_DIAGNOSTICO CHAR(256)            null,
-   ESTADO_SOCIAL_DOCTOR CHAR(256)            null,
-   constraint PK_ESTADO_SOCIAL primary key (ESTADO_SOCIAL_ID)
 );
 
 /*==============================================================*/
@@ -49,7 +33,6 @@ create table ESTADO_SOCIAL (
 /*==============================================================*/
 create table MADRE (
    MADRE_CI             CHAR(10)             not null,
-   NINO_CI              CHAR(10)             not null,
    MADRE_NOMBRE         CHAR(256)            null,
    MADRE_APELLIDO       CHAR(256)            null,
    MADRE_NACIONALIDAD   CHAR(256)            null,
@@ -71,13 +54,19 @@ create table MATERIAL (
 create table NINO (
    NINO_CI              CHAR(10)             not null,
    PADRE_CI             CHAR(10)             null,
-   ESTADO_SOCIAL_ID     INT4                 null,
    MADRE_CI             CHAR(10)             null,
    NINO_NOMBRE          CHAR(256)            null,
    NINO_APELLIDO        CHAR(256)            null,
    NINO_GENERO          CHAR(256)            null,
    NINO_NACIONALIDAD    CHAR(256)            null,
    NINO_EDAD            NUMERIC              null,
+   NINO_TALLA_VESTIMENTA CHAR(256)            null,
+   NINO_TALLA_ZAPATOS   CHAR(256)            null,
+   NINO_ALERGIAS        CHAR(256)            null,
+   NINO_MEDICAMENTOS    CHAR(256)            null,
+   NINO_FECHA_ENFERMO   DATE                 null,
+   NINO_DIAGNOSTICO     CHAR(256)            null,
+   NINO_DOCTOR          CHAR(256)            null,
    constraint PK_NINO primary key (NINO_CI)
 );
 
@@ -88,6 +77,7 @@ create table NINO_INSCRITO (
    NINO_INSCRITO_ID     SERIAL               not null,
    ACTIVIDAD_PROGRAMA_ID INT4                 not null,
    NINO_CI              CHAR(10)             not null,
+   NINO_INSCRITO_FECHA  DATE                 null,
    NINO_INSCRITO_RENDIMIENTO CHAR(256)            null,
    NINO_INCRITO_OBSERVACION CHAR(256)            null,
    constraint PK_NINO_INSCRITO primary key (NINO_INSCRITO_ID)
@@ -107,7 +97,6 @@ create table NINO_TUTOR (
 /*==============================================================*/
 create table PADRE (
    PADRE_CI             CHAR(10)             not null,
-   NINO_CI              CHAR(10)             not null,
    PADRE_NOMBRE         CHAR(256)            null,
    PADRE_APELLIDO       CHAR(256)            null,
    PADRE_NACIONALIDAD   CHAR(256)            null,
@@ -131,9 +120,9 @@ create table PROFESIONAL (
 /* Table: PROGRAMA                                              */
 /*==============================================================*/
 create table PROGRAMA (
-   PROGRADA_ID          SERIAL               not null,
+   PROGRAMA_ID          SERIAL               not null,
    PROGRAMA_DESCRIPCION CHAR(256)            null,
-   constraint PK_PROGRAMA primary key (PROGRADA_ID)
+   constraint PK_PROGRAMA primary key (PROGRAMA_ID)
 );
 
 /*==============================================================*/
@@ -152,13 +141,13 @@ create table TUTOR (
 );
 
 alter table ACTIVIDAD_MATERIAL
-   add constraint FK_ACTIVIDA_RELATIONS_ACTIVIDA foreign key (ACTIVIDAD_PROGRAMA_ID)
-      references ACTIVIDAD_PROGRAMA (ACTIVIDAD_PROGRAMA_ID)
+   add constraint FK_ACTIVIDA_RELATIONS_MATERIAL foreign key (MATERIAL_ID)
+      references MATERIAL (MATERIAL_ID)
       on delete restrict on update restrict;
 
 alter table ACTIVIDAD_MATERIAL
-   add constraint FK_ACTIVIDA_RELATIONS_MATERIAL foreign key (MATERIAL_ID)
-      references MATERIAL (MATERIAL_ID)
+   add constraint FK_ACTIVIDA_RELATIONS_ACTIVIDA foreign key (ACTIVIDAD_PROGRAMA_ID)
+      references ACTIVIDAD_PROGRAMA (ACTIVIDAD_PROGRAMA_ID)
       on delete restrict on update restrict;
 
 alter table ACTIVIDAD_PROGRAMA
@@ -167,18 +156,8 @@ alter table ACTIVIDAD_PROGRAMA
       on delete restrict on update restrict;
 
 alter table ACTIVIDAD_PROGRAMA
-   add constraint FK_ACTIVIDA_RELATIONS_PROGRAMA foreign key (PROGRADA_ID)
-      references PROGRAMA (PROGRADA_ID)
-      on delete restrict on update restrict;
-
-alter table ESTADO_SOCIAL
-   add constraint FK_ESTADO_S_RELATIONS_NINO foreign key (NINO_CI)
-      references NINO (NINO_CI)
-      on delete restrict on update restrict;
-
-alter table MADRE
-   add constraint FK_MADRE_RELATIONS_NINO foreign key (NINO_CI)
-      references NINO (NINO_CI)
+   add constraint FK_ACTIVIDA_RELATIONS_PROGRAMA foreign key (PROGRAMA_ID)
+      references PROGRAMA (PROGRAMA_ID)
       on delete restrict on update restrict;
 
 alter table NINO
@@ -189,11 +168,6 @@ alter table NINO
 alter table NINO
    add constraint FK_NINO_RELATIONS_MADRE foreign key (MADRE_CI)
       references MADRE (MADRE_CI)
-      on delete restrict on update restrict;
-
-alter table NINO
-   add constraint FK_NINO_RELATIONS_ESTADO_S foreign key (ESTADO_SOCIAL_ID)
-      references ESTADO_SOCIAL (ESTADO_SOCIAL_ID)
       on delete restrict on update restrict;
 
 alter table NINO_INSCRITO
@@ -207,22 +181,16 @@ alter table NINO_INSCRITO
       on delete restrict on update restrict;
 
 alter table NINO_TUTOR
-   add constraint FK_NINO_TUT_RELATIONS_NINO foreign key (NINO_CI)
-      references NINO (NINO_CI)
-      on delete restrict on update restrict;
-
-alter table NINO_TUTOR
    add constraint FK_NINO_TUT_RELATIONS_TUTOR foreign key (TUTOR_CI)
       references TUTOR (TUTOR_CI)
       on delete restrict on update restrict;
 
-alter table PADRE
-   add constraint FK_PADRE_RELATIONS_NINO foreign key (NINO_CI)
+alter table NINO_TUTOR
+   add constraint FK_NINO_TUT_RELATIONS_NINO foreign key (NINO_CI)
       references NINO (NINO_CI)
       on delete restrict on update restrict;
 
 
-	  
 /*profesionales*/
 insert into profesional values('1352084949','Luis Alfredo','Delgado Bravo','masculino','ecuatoriana','014512123');
 insert into profesional values('0952907780','Cinthia Carolina','Moreira Macías','femenino','ecuatoriana','014456465');
@@ -245,11 +213,11 @@ insert into material values(default,'tablets');
 insert into material values(default,'hojas');
 insert into material values(default,'computadoras');
 /*actividad_programa*/
-insert into actividad_programa values(default,1,'1352084949','curso de computacion y tecnologia','3 meses');
-insert into actividad_programa values(default,1,'0952907780','lectura y escritura','2 meses');
-insert into actividad_programa values(default,2,'1315727139','diccionario de emociones','1 mes');
-insert into actividad_programa values(default,3,'1314750603','juegos ludicos','4 meses');
-insert into actividad_programa values(default,3,'1316333058','deportes','5 meses');
+insert into actividad_programa values(default,1,'1352084949','curso de computacion y tecnologia','1 mes','2020/05/08','2020/06/08');
+insert into actividad_programa values(default,1,'0952907780','lectura y escritura','2 meses','2020/05/22','2020/07/22');
+insert into actividad_programa values(default,2,'1315727139','diccionario de emociones','3 meses','2020/06/10','2020/09/10');
+insert into actividad_programa values(default,3,'1314750603','juegos ludicos','1 mes','2020/06/10','2020/07/10');
+insert into actividad_programa values(default,3,'1316333058','deportes','2 meses','2020/05/22','2020/07/22');
 /*actividad_material*/
 insert into actividad_material values(6,1);
 insert into actividad_material values(7,1);
@@ -270,30 +238,30 @@ insert into actividad_material values(5,4);
 insert into actividad_material values(6,4);
 insert into actividad_material values(7,4);
 insert into actividad_material values(5,5);
-/*niño*/
-insert into nino values('1234567890',null,null,null,'Andres','Perez Anchundia','masculino','ecuatoriana',3);
-insert into nino values('1324567890',null,null,null,'Leonardo','Toala Ordoñez','masculino','ecuatoriana',3);
-insert into nino values('1326547890',null,null,null,'Antonio','Giler Macias','masculino','ecuatoriana',3);
-insert into nino values('1315645789',null,null,null,'Andres','Mendoza Parraga','masculino','ecuatoriana',3);
-insert into nino values('1316854790',null,null,null,'Carlos','Moya Vera','masculino','ecuatoriana',3);
-insert into nino values('1304567890',null,null,null,'Maryangel','Cedeño Pazmiño','femenino','ecuatoriana',4);
-insert into nino values('1302457890',null,null,null,'Coraima','Intriago Barreto','femenino','ecuatoriana',4);
-insert into nino values('1303124560',null,null,null,'Alisson','Perez Reyes','femenino','ecuatoriana',4);
-insert into nino values('1301237890',null,null,null,'Adriana','Gilces Peñafiel','femenino','ecuatoriana',4);
-insert into nino values('1324560840',null,null,null,'Luisa','Menendez Lucas','femenino','ecuatoriana',4);
 /*padres*/
-insert into padre values('1309784650','1326547890','Antonio','Giler Molina','croata');
-insert into padre values('1345612650','1315645789','Rolando','Mendoza Chavez','estadounidense');
-insert into padre values('1304789125','1316854790','Carlos','Moya Joniaux','peruano');
-insert into padre values('1387952165','1304567890','Alberto','Cedeño Tuarez','ecuatoriano');
-insert into padre values('1307894562','1302457890','Ramon','Intriago Loor','ecuatoriano');
-insert into padre values('1302050746','1303124560','Pablo','Perez Molina','colombiano');
+insert into padre values('1309784650','Antonio','Giler Molina','croata');
+insert into padre values('1345612650','Rolando','Mendoza Chavez','estadounidense');
+insert into padre values('1304789125','Carlos','Moya Joniaux','peruano');
+insert into padre values('1387952165','Alberto','Cedeño Tuarez','ecuatoriano');
+insert into padre values('1307894562','Ramon','Intriago Loor','ecuatoriano');
+insert into padre values('1302050746','Pablo','Perez Molina','colombiano');
 /*madre*/
-insert into madre values('0954849841','1234567890','Soledad','Anchundia Delgado','chilena');
-insert into madre values('0947851234','1324567890','Rosa','Ordoñez Barcia','colombiana');
-insert into madre values('1389794654','1302457890','Patricia','Barreto Solorzano','española');
-insert into madre values('1374562014','1301237890','Julia','Peñafiel Alvarado','costarisense');
-insert into madre values('1364785204','1324560840','Julieta','Lucas Menendez','estadounidense');
+insert into madre values('0954849841','Soledad','Anchundia Delgado','chilena');
+insert into madre values('0947851234','Rosa','Ordoñez Barcia','colombiana');
+insert into madre values('1389794654','Patricia','Barreto Solorzano','española');
+insert into madre values('1374562014','Julia','Peñafiel Alvarado','costarisense');
+insert into madre values('1364785204','Julieta','Lucas Menendez','estadounidense');
+/*niño*/
+insert into nino values('1234567890',null,'0954849841','Andres','Perez Anchundia','masculino','ecuatoriana',3,'3t','23','rinitis','Allegra','2020/05/08','sangrado nasal','Coraima Intriago');
+insert into nino values('1324567890',null,'0947851234','Leonardo','Toala Ordoñez','masculino','ecuatoriana',3,'3t','24','polen','Difenhidramina','2020/06/01','fiebre','Vielka Soledispa');
+insert into nino values('1326547890','1309784650',null,'Antonio','Giler Macias','masculino','ecuatoriana',3,'3t','23','polvo','Allegra','2020/04/03','fiebre','Luis Santana');
+insert into nino values('1315645789','1345612650',null,'Andres','Mendoza Parraga','masculino','ecuatoriana',3,'3t','24','mascotas','Difenhidramina','2020/08/22','tos','Jhon Giler');
+insert into nino values('1316854790','1304789125',null,'Carlos','Moya Vera','masculino','ecuatoriana',3,'3t','25','moho','Difenhidramina','2020/07/28','desmayo','Maria Delgado');
+insert into nino values('1304567890','1387952165',null,'Maryangel','Cedeño Pazmiño','femenino','ecuatoriana',4,'4t','26',null,null,'2020/08/12','tos','José Perez');
+insert into nino values('1302457890','1307894562','1389794654','Coraima','Intriago Barreto','femenino','ecuatoriana',4,'4t','24','rinitis','Allegra','2020/09/15','gripe','Liz Moreira');
+insert into nino values('1303124560','1302050746',null,'Alisson','Perez Reyes','femenino','ecuatoriana',4,'4t','23',null,null,'2020/10/07','gripe','Jose Pereira');
+insert into nino values('1301237890',null,'1374562014','Adriana','Gilces Peñafiel','femenino','ecuatoriana',4,'4t','23','polvo','Difenhidramina','2020/11/04','fiebre','Andres Angulo');
+insert into nino values('1324560840',null,'1364785204','Luisa','Menendez Lucas','femenino','ecuatoriana',4,'4t','24','moho','Difenhidramina','2020/12/08','gripe','Pablo Proaño');
 /*tutor*/
 insert into tutor values('1764554864','Luis Alfredo','Delgado Bravo','masculino','ecuatoriana','Barrio san jose',0999556240,'casa 1001');
 insert into tutor values('1354565587','Pablo Fabian','Saltos Carrillo','masculino','ecuatoriana','La Proaño',0954871345,'casa 5041');
@@ -301,64 +269,26 @@ insert into tutor values('1354565587','Pablo Fabian','Saltos Carrillo','masculin
 insert into nino_tutor values('1764554864','1234567890');
 insert into nino_tutor values('1354565587','1324560840');
 /*niño inscrito*/
-insert into nino_inscrito values(default,1,'1234567890','regular','debe mejorar');
-insert into nino_inscrito values(default,1,'1324567890','regular','debe mejorar');
-insert into nino_inscrito values(default,2,'1326547890','regular','debe mejorar');
-insert into nino_inscrito values(default,2,'1315645789','bueno','muy bien siga mejorando');
-insert into nino_inscrito values(default,3,'1316854790','bueno','muy bien siga mejorando');
-insert into nino_inscrito values(default,3,'1304567890','bueno','muy bien siga mejorando');
-insert into nino_inscrito values(default,4,'1302457890','excelente','perfecto, muy buen alumno');
-insert into nino_inscrito values(default,4,'1303124560','excelente','perfecto, muy buen alumno');
-insert into nino_inscrito values(default,5,'1301237890','excelente','perfecto, muy buen alumno');
-insert into nino_inscrito values(default,5,'1324560840','excelente','perfecto, muy buen alumno');
-insert into nino_inscrito values(default,2,'1234567890','regular','debe mejorar');
-insert into nino_inscrito values(default,2,'1324567890','regular','debe mejorar');
-insert into nino_inscrito values(default,3,'1326547890','regular','debe mejorar');
-insert into nino_inscrito values(default,3,'1315645789','bueno','muy bien siga mejorando');
-insert into nino_inscrito values(default,4,'1316854790','bueno','muy bien siga mejorando');
-insert into nino_inscrito values(default,4,'1304567890','bueno','muy bien siga mejorando');
-insert into nino_inscrito values(default,5,'1302457890','excelente','perfecto, muy buen alumno');
-insert into nino_inscrito values(default,5,'1303124560','excelente','perfecto, muy buen alumno');
-insert into nino_inscrito values(default,1,'1301237890','excelente','perfecto, muy buen alumno');
-insert into nino_inscrito values(default,1,'1324560840','excelente','perfecto, muy buen alumno');
-/*estado social*/
-insert into estado_social values(default,'1234567890','3t','23','rinitis','Allegra','2020/05/08','sangrado nasal','Coraima Intriago');
-insert into estado_social values(default,'1324567890','3t','24','polen','Difenhidramina','2020/06/01','fiebre','Vielka Soledispa');
-insert into estado_social values(default,'1326547890','3t','23','polvo','Allegra','2020/04/03','fiebre','Luis Santana');
-insert into estado_social values(default,'1315645789','3t','24','mascotas','Difenhidramina','2020/08/22','tos','Jhon Giler');
-insert into estado_social values(default,'1316854790','3t','25','moho','Difenhidramina','2020/07/28','desmayo','Maria Delgado');
-insert into estado_social values(default,'1304567890','4t','26',null,null,'2020/08/12','tos','José Perez');
-insert into estado_social values(default,'1302457890','4t','24','rinitis','Allegra','2020/09/15','gripe','Liz Moreira');
-insert into estado_social values(default,'1303124560','4t','23',null,null,'2020/10/07','gripe','Jose Pereira');
-insert into estado_social values(default,'1301237890','4t','23','polvo','Difenhidramina','2020/11/04','fiebre','Andres Angulo');
-insert into estado_social values(default,'1324560840','4t','24','moho','Difenhidramina','2020/12/08','gripe','Pablo Proaño');
-
-/*acualizar datos de niño*/
-update nino set padre_ci='1309784650' where nino_ci='1326547890';
-update nino set padre_ci='1345612650' where nino_ci='1315645789';
-update nino set padre_ci='1304789125' where nino_ci='1316854790';
-update nino set padre_ci='1387952165' where nino_ci='1304567890';
-update nino set padre_ci='1307894562' where nino_ci='1302457890';
-update nino set padre_ci='1302050746' where nino_ci='1303124560';
-
-update nino set madre_ci='0954849841' where nino_ci='1234567890';
-update nino set madre_ci='0947851234' where nino_ci='1324567890';
-update nino set madre_ci='1389794654' where nino_ci='1302457890';
-update nino set madre_ci='1374562014' where nino_ci='1301237890';
-update nino set madre_ci='1364785204' where nino_ci='1324560840';
-
-
-update nino set estado_social_id=1 where nino_ci='1234567890';
-update nino set estado_social_id=2 where nino_ci='1324567890';
-update nino set estado_social_id=3 where nino_ci='1326547890';
-update nino set estado_social_id=4 where nino_ci='1315645789';
-update nino set estado_social_id=5 where nino_ci='1316854790';
-update nino set estado_social_id=6 where nino_ci='1304567890';
-update nino set estado_social_id=7 where nino_ci='1302457890';
-update nino set estado_social_id=8 where nino_ci='1303124560';
-update nino set estado_social_id=9 where nino_ci='1301237890';
-update nino set estado_social_id=10 where nino_ci='1324560840';
-
+insert into nino_inscrito values(default,1,'1234567890','2020/05/08','regular','debe mejorar');
+insert into nino_inscrito values(default,1,'1324567890','2020/05/08','regular','debe mejorar');
+insert into nino_inscrito values(default,2,'1326547890','2020/05/22','regular','debe mejorar');
+insert into nino_inscrito values(default,2,'1315645789','2020/05/22','bueno','muy bien siga mejorando');
+insert into nino_inscrito values(default,3,'1316854790','2020/06/10','bueno','muy bien siga mejorando');
+insert into nino_inscrito values(default,3,'1304567890','2020/06/10','bueno','muy bien siga mejorando');
+insert into nino_inscrito values(default,4,'1302457890','2020/06/10','excelente','perfecto, muy buen alumno');
+insert into nino_inscrito values(default,4,'1303124560','2020/06/10','excelente','perfecto, muy buen alumno');
+insert into nino_inscrito values(default,5,'1301237890','2020/05/22','excelente','perfecto, muy buen alumno');
+insert into nino_inscrito values(default,5,'1324560840','2020/05/22','excelente','perfecto, muy buen alumno');
+insert into nino_inscrito values(default,2,'1234567890','2020/05/22','regular','debe mejorar');
+insert into nino_inscrito values(default,2,'1324567890','2020/05/22','regular','debe mejorar');
+insert into nino_inscrito values(default,3,'1326547890','2020/06/10','regular','debe mejorar');
+insert into nino_inscrito values(default,3,'1315645789','2020/06/10','bueno','muy bien siga mejorando');
+insert into nino_inscrito values(default,4,'1316854790','2020/06/10','bueno','muy bien siga mejorando');
+insert into nino_inscrito values(default,4,'1304567890','2020/06/10','bueno','muy bien siga mejorando');
+insert into nino_inscrito values(default,5,'1302457890','2020/05/22','excelente','perfecto, muy buen alumno');
+insert into nino_inscrito values(default,5,'1303124560','2020/05/22','excelente','perfecto, muy buen alumno');
+insert into nino_inscrito values(default,1,'1301237890','2020/05/08','excelente','perfecto, muy buen alumno');
+insert into nino_inscrito values(default,1,'1324560840','2020/05/08','excelente','perfecto, muy buen alumno');
 
 /*consultas*/
 /*¿Qué estudiantes no tienen a su madre de forma activa en su vida? ¿Qué estudiantes no tienen a su padre de forma activa en su vida? */
